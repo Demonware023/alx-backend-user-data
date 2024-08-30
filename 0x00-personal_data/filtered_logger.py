@@ -4,6 +4,9 @@ This module provides a filtered logger for handling and obfuscating
 sensitive user data in logs.
 """
 
+import os
+import mysql.connector
+from mysql.connector import connection
 import logging
 from typing import List, Tuple
 
@@ -68,3 +71,30 @@ def get_logger() -> logging.Logger:
     logger.addHandler(stream_handler)
 
     return logger
+
+
+def get_db() -> connection.MySQLConnection:
+    """
+    Returns a MySQL database connection object using environment
+    variables for credentials.
+
+    Environment variables:
+        PERSONAL_DATA_DB_USERNAME: Username for the database (default: 'root')
+        PERSONAL_DATA_DB_PASSWORD: Password for the database (default: '')
+        PERSONAL_DATA_DB_HOST: Hostname of the database (default: 'localhost')
+        PERSONAL_DATA_DB_NAME: Name of the database
+
+    Returns:
+        MySQLConnection: A connection object to the specified database.
+    """
+    username = os.getenv('PERSONAL_DATA_DB_USERNAME', 'root')
+    password = os.getenv('PERSONAL_DATA_DB_PASSWORD', '')
+    host = os.getenv('PERSONAL_DATA_DB_HOST', 'localhost')
+    database = os.getenv('PERSONAL_DATA_DB_NAME')
+
+    return mysql.connector.connect(
+        user=username,
+        password=password,
+        host=host,
+        database=database
+    )
