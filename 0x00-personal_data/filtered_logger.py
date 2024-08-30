@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 """
-This module provides a filtered logger for obfuscating sensitive data.
+This module provides a filtered logger for handling and obfuscating
+sensitive user data in logs.
 """
 
-import re
 import logging
-from typing import List
+from typing import List, Tuple
+
+# Define the PII fields to be redacted
+PII_FIELDS: Tuple[str, ...] = ("name", "email", "phone_number",
+                               "ssn", "password")
 
 
 def filter_datum(fields: List[str], redaction: str, message: str,
@@ -22,7 +26,7 @@ def filter_datum(fields: List[str], redaction: str, message: str,
 
 class RedactingFormatter(logging.Formatter):
     """
-    Redacting Formatter class.
+    Redacting Formatter class for filtering PII fields in logs.
     """
 
     REDACTION = "***"
@@ -45,3 +49,22 @@ class RedactingFormatter(logging.Formatter):
         filtered_message = filter_datum(self.fields, self.REDACTION,
                                         original_message, self.SEPARATOR)
         return filtered_message
+
+
+def get_logger() -> logging.Logger:
+    """
+    Creates and configures a logger named 'user_data'.
+
+    Returns:
+        logging.Logger: Configured logger instance.
+    """
+    logger = logging.getLogger("user_data")
+    logger.setLevel(logging.INFO)
+    logger.propagate = False
+
+    stream_handler = logging.StreamHandler()
+    formatter = RedactingFormatter(fields=PII_FIELDS)
+    stream_handler.setFormatter(formatter)
+    logger.addHandler(stream_handler)
+
+    return logger
