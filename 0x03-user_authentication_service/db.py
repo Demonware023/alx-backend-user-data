@@ -33,11 +33,11 @@ class DB:
 
     def add_user(self, email: str, hashed_password: str) -> User:
         """Adds a new user to the database and returns the User object
-        
+
         Args:
             email (str): user's email
             hashed_password (str): user's hashed password
-        
+
         Returns:
             User: the user object that was added to the database
         """
